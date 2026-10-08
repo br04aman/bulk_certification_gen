@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Certificate Generator - Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-background"></div>
+    <div class="app-container">
+        
+        <!-- Header Navbar -->
+        <header class="navbar">
+            <div class="nav-brand">
+                <img src="/static/img/hero.png" alt="CertGen Logo" class="nav-logo">
+                <div class="brand-text">
+                    <h1>Certify<span class="gradient-text">Bulk</span></h1>
+                    <p class="tagline">Enterprise Certificate Engine</p>
+                </div>
+            </div>
+
+            <div class="nav-actions">
+                <div class="status-indicator">
+                    <span class="status-dot online"></span>
+                    <span class="status-label">API Online</span>
+                </div>
+                <a href="/docs" target="_blank" class="btn btn-outline btn-sm">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    OpenAPI Docs
+                </a>
+            </div>
+        </header>
+
+        <!-- Main Navigation Tabs -->
+        <nav class="tabs-nav">
+            <button class="tab-btn active" data-tab="create-job">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                New Bulk Request
+            </button>
+            <button class="tab-btn" data-tab="job-tracker">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Job Tracker & Downloads
+            </button>
+            <button class="tab-btn" data-tab="job-history">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                All Jobs History
+            </button>
+        </nav>
+
+        <!-- TAB 1: Create Bulk Generation Job -->
+        <section id="create-job" class="tab-content active">
+            <div class="grid-layout">
+                <!-- Form Column -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <h2>Certificate Job Configuration</h2>
+                        <p>Provide course metadata and recipient details to trigger bulk PDF generation.</p>
+                    </div>
+
+                    <form id="job-form">
+                        <div class="form-group">
+                            <label for="title">Course / Event Title <span class="required">*</span></label>
+                            <input type="text" id="title" class="form-input" placeholder="e.g. Full Stack Web Development Mastery 2026" required>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="issuer_name">Organization / Issuer <span class="required">*</span></label>
+                                <input type="text" id="issuer_name" class="form-input" placeholder="e.g. Global Tech Institute" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="issue_date">Issue Date <span class="required">*</span></label>
+                                <input type="text" id="issue_date" class="form-input" placeholder="e.g. October 8, 2026" required>
+                            </div>
+                        </div>
+
+                        <!-- Recipient Mode Selector -->
+                        <div class="section-divider">
+                            <span>Recipient List Data</span>
+                            <div class="toggle-group">
+                                <button type="button" class="toggle-btn active" id="btn-mode-table">Interactive Form</button>
+                                <button type="button" class="toggle-btn" id="btn-mode-csv">CSV / JSON Paste</button>
+                            </div>
+                        </div>
+
+                        <!-- Mode A: Interactive Table -->
+                        <div id="mode-table-container">
+                            <div class="table-actions">
+                                <span class="badge badge-info" id="recipient-count-badge">2 Recipients</span>
+                                <div class="action-buttons">
+                                    <button type="button" class="btn btn-sm btn-ghost" id="btn-demo-data">✨ Load Demo Data</button>
+                                    <button type="button" class="btn btn-sm btn-outline" id="btn-add-row">+ Add Recipient</button>
+                                </div>
+                            </div>
+
+                            <div class="table-wrapper">
+                                <table class="custom-table" id="recipients-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Recipient Name</th>
+                                            <th>Email Address</th>
+                                            <th style="width: 60px;">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recipients-tbody">
+                                        <!-- Dynamic Rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Mode B: CSV / JSON Paste -->
+                        <div id="mode-csv-container" class="hidden">
+                            <div class="form-group">
+                                <label for="raw-csv-input">Paste CSV or JSON Array</label>
+                                <textarea id="raw-csv-input" class="form-textarea" rows="6" placeholder="Name, Email&#10;Alice Johnson, alice@example.com&#10;Bob Smith, bob@example.com"></textarea>
+                                <span class="form-help">Format: Name, Email on each line OR standard JSON array of objects.</span>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submit-job-btn">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                                Generate Bulk Certificates
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Live Preview / Template Showcase -->
+                <div class="glass-card preview-card">
+                    <div class="card-header">
+                        <h2>Predefined Template Preview</h2>
+                        <p>High-resolution ReportLab vector layout with dynamic verification seals.</p>
+                    </div>
+
+                    <div class="certificate-mockup">
+                        <div class="cert-border-outer">
+                            <div class="cert-border-inner">
+                                <div class="cert-header" id="preview-issuer">GLOBAL TECH INSTITUTE</div>
+                                <div class="cert-title">CERTIFICATE OF ACHIEVEMENT</div>
+                                <div class="cert-subtitle">This is proudly presented to</div>
+                                <div class="cert-name" id="preview-name">RECIPIENT NAME</div>
+                                <div class="cert-body">for successfully completing</div>
+                                <div class="cert-course" id="preview-title">Full Stack Web Development Workshop</div>
+                                <div class="cert-footer">
+                                    <div class="cert-seal">
+                                        <div class="seal-inner">VERIFIED<br>OFFICIAL</div>
+                                    </div>
+                                    <div class="cert-code" id="preview-code">ID: CERT-2026-PREVIEW</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-pills">
+                        <span class="pill">⚡ Vector PDF Output</span>
+                        <span class="pill">🔒 Fault Isolated</span>
+                        <span class="pill">📦 Bulk ZIP Export</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: Job Progress Tracker & Download Hub -->
+        <section id="job-tracker" class="tab-content">
+            <div class="glass-card">
+                <div class="card-header flex-between">
+                    <div>
+                        <h2>Job Status & Download Center</h2>
+                        <p>Track realtime bulk generation progress, inspect recipient logs, and download PDFs.</p>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="tracker-job-id-input" class="form-input" placeholder="Enter Job ID (e.g. 5f8780...)">
+                        <button class="btn btn-outline" id="btn-fetch-job">Track Job</button>
+                    </div>
+                </div>
+
+                <div id="tracker-empty-state" class="empty-state">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <h3>No Job Selected</h3>
+                    <p>Submit a new bulk request or paste an existing Job ID above to track progress.</p>
+                </div>
+
+                <div id="tracker-details" class="hidden">
+                    <!-- Progress Card Header -->
+                    <div class="job-summary-bar">
+                        <div class="summary-item">
+                            <span class="label">Job ID</span>
+                            <span class="value font-mono" id="job-detail-id">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Course Title</span>
+                            <span class="value" id="job-detail-title">-</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Status</span>
+                            <span id="job-detail-status-badge" class="badge badge-pending">PENDING</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="label">Progress</span>
+                            <span class="value" id="job-detail-progress-text">0 / 0 (0%)</span>
+                        </div>
+                        <div class="summary-item actions-item">
+                            <button id="btn-download-zip" class="btn btn-primary btn-sm" disabled>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                Download All (ZIP)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Animated Progress Bar -->
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="job-progress-bar" style="width: 0%;"></div>
+                    </div>
+
+                    <!-- Recipient Certificates Table -->
+                    <div class="table-wrapper margin-top-lg">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Recipient Name</th>
+                                    <th>Email</th>
+                                    <th>Verification Code</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tracker-records-tbody">
+                                <!-- Dynamic Recipient Result Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: Job History List -->
+        <section id="job-history" class="tab-content">
+            <div class="glass-card">
+                <div class="card-header flex-between">
+                    <div>
+                        <h2>Generation History</h2>
+                        <p>Overview of all bulk certificate jobs executed on the server.</p>
+                    </div>
+                    <button class="btn btn-outline btn-sm" id="btn-refresh-history">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                        Refresh
+                    </button>
+                </div>
+
+                <div class="table-wrapper">
+                    <table class="custom-table">
+                        <thead>
+                            <tr>
+                                <th>Job ID</th>
+                                <th>Course Title</th>
+                                <th>Issuer</th>
+                                <th>Total</th>
+                                <th>Success</th>
+                                <th>Failed</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-jobs-tbody">
+                            <!-- Dynamic History Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
